@@ -12,11 +12,7 @@
     <img src="https://img.shields.io/badge/-Firebase-black?style=for-the-badge&logoColor=white&logo=firebase&color=DD2C00" alt="firebase" />
   </div>
 
-  <h3 align="center">Prepwise: A job interview preparation platform powered by Vapi AI Voice agents</h3>
-
-   <div align="center">
-     Build this project step by step with our detailed tutorial on <a href="https://www.youtube.com/@javascriptmastery/videos" target="_blank"><b>JavaScript Mastery</b></a> YouTube. Join the JSM family!
-    </div>
+  <h3 align="center">Mock Mate AI: A job interview preparation platform powered by Vapi AI Voice agents</h3>
 </div>
 
 ## 📋 <a name="table">Table of Contents</a>

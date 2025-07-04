@@ -7,7 +7,21 @@ import { db } from "@/firebase/admin";
 import { feedbackSchema } from "@/constants";
 
 export async function createFeedback(params: CreateFeedbackParams) {
+  console.log("📥 createFeedback called");
+
   const { interviewId, userId, transcript, feedbackId } = params;
+
+  console.log("🧾 Interview details:", {
+    interviewId,
+    userId,
+    transcriptLength: transcript.length,
+    feedbackId,
+  });
+
+  if (!transcript || transcript.length === 0) {
+    console.warn("⚠️ No transcript provided. Skipping feedback generation.");
+    return { success: false };
+  }
 
   try {
     const formattedTranscript = transcript
@@ -17,6 +31,9 @@ export async function createFeedback(params: CreateFeedbackParams) {
       )
       .join("");
 
+    console.log("🔥 Formatted transcript sample:", formattedTranscript.slice(0, 300));
+
+    console.log("🔥 Calling Gemini to generate feedback object");
     const { object } = await generateObject({
       model: google("gemini-2.0-flash-001", {
         structuredOutputs: false,
@@ -33,10 +50,12 @@ export async function createFeedback(params: CreateFeedbackParams) {
         - **Problem-Solving**: Ability to analyze problems and propose solutions.
         - **Cultural & Role Fit**: Alignment with company values and job role.
         - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
-        `,
+      `,
       system:
         "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
     });
+
+    console.log("✅ Gemini returned object:", object);
 
     const feedback = {
       interviewId: interviewId,
@@ -49,22 +68,27 @@ export async function createFeedback(params: CreateFeedbackParams) {
       createdAt: new Date().toISOString(),
     };
 
-    let feedbackRef;
+    console.log("📝 Final feedback object:", feedback);
 
+    let feedbackRef;
     if (feedbackId) {
       feedbackRef = db.collection("feedback").doc(feedbackId);
+      console.log("📌 Updating existing feedback:", feedbackRef.id);
     } else {
       feedbackRef = db.collection("feedback").doc();
+      console.log("📌 Creating new feedback:", feedbackRef.id);
     }
 
     await feedbackRef.set(feedback);
+    console.log("✅ Feedback saved successfully to Firebase:", feedbackRef.id);
 
     return { success: true, feedbackId: feedbackRef.id };
-  } catch (error) {
-    console.error("Error saving feedback:", error);
+  } catch (error: any) {
+    console.error("❌ Error saving feedback:", error?.message || error);
     return { success: false };
   }
 }
+
 
 export async function getInterviewById(id: string): Promise<Interview | null> {
   const interview = await db.collection("interviews").doc(id).get();

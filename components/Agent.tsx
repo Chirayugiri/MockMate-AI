@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { db } from "@/firebase/admin";
 
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
